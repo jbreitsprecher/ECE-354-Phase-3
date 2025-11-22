@@ -1,0 +1,18 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node / React
+node_modules/
+dist/
+build/
+
+# SQLite
+*.sqlite3
+*.db
