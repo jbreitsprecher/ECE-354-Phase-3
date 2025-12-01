@@ -43,7 +43,7 @@ class Syllabus(db.Model):
     __tablename__ = "syllabi"
 
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=True)
 
     original_filename = db.Column(db.String, nullable=True)
     # later: you can add a file path or raw text
@@ -53,17 +53,29 @@ class Assignment(db.Model):
     __tablename__ = "assignments"
 
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=True)
 
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=True)
 
-    # store as ISO string for now, e.g. "2025-10-20"
     due_date = db.Column(db.String, nullable=False)
 
-    assignment_type = db.Column(db.String, nullable=True)  # exam, hw, quiz, project
-    priority = db.Column(db.Integer, default=1)            # 1=low, 2=med, 3=high
+    assignment_type = db.Column(db.String, nullable=True)
+    priority = db.Column(db.Integer, default=1)
     estimated_hours = db.Column(db.Float, nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "courseId": self.course_id,
+            "title": self.title,
+            "description": self.description,
+            "dueDate": self.due_date,
+            "assignmentType": self.assignment_type,
+            "priority": self.priority,
+            "estimatedHours": self.estimated_hours,
+        }
+
 
 
 class StudyHabit(db.Model):
