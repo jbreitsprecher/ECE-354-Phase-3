@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #0d0d0f;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: white;
+}
+
+.app-container {
+    padding: 20px;
+    max-width: 400px;
+    margin: auto;
+}
+
+.logo {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 5px;
+}
+
+.upload-area {
+    background: #1a1a1d;
+    border: 2px dashed #444;
+    padding: 40px;
+    margin-top: 25px;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    background: #222;
+}
+
+.upload-icon {
+    font-size: 35px;
+}
+
+.upload-text span {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.url-box {
+    display: flex;
+    margin-top: 15px;
+}
+
+.url-box input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px 0 0 10px;
+    border: none;
+    outline: none;
+}
+
+.url-box button {
+    background: #3b82f6;
+    border: none;
+    padding: 10px 15px;
+    color: white;
+    border-radius: 0 10px 10px 0;
+}
+
+.sub-title {
+    margin-top: 25px;
+    font-size: 18px;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+}
+
+.file-list li {
+    background: #1a1a1d;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.keep-btn {
+    background: #16a34a;
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-right: 5px;
+}
+
+.delete-btn {
+    background: #dc2626;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.start-btn {
+    flex: 1;
+    margin-right: 10px;
+    background: #3b82f6;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+}
+
+.cancel-btn {
+    flex: 1;
+    background: #444;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+}
