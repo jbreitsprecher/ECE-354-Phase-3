@@ -1,6 +1,7 @@
 import os
 import re
 import requests
+from models import StudyHabit
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -56,6 +57,62 @@ def create_assignment():
     db.session.commit()
 
     return assignment.to_dict(), 201
+
+#compent of study habits
+@app.route("/api/study-habits", methods=["GET"])
+def get_study_habits():
+    habits = StudyHabit.query.all()
+    return jsonify([
+    {
+        "id" : h.id,
+        "days0fWeek" : h.days_of_week,
+        "startTime" : h.start_time,
+        "endTime" : h.end_time
+    }
+    for h in habits
+
+    ])
+
+@app.route("/api/study-habits", methods=["POST"])
+def create_study_habits():
+    data = request.get_json() or {}
+
+    required = ["daysOfWeek", "startTime", "endTime"]
+    for field in required:
+        if field not in data:
+            return{"error": f"Missing field '{field}'"}, 400
+
+    habit = StudyHabit(
+        user_id= 1,
+        days_of_week = data["dayOfWeek"],
+        start_time=data["startTime"],
+        end_time=data["EndTime"]
+    )
+
+    db.session.add(habit)
+    db.session.commit()
+
+    return{
+        "id": habit.id,
+        "daysOfWeek": habit.days_of_week,
+        "startTime": habit.start_time,
+        "endTime" : habit.end_time
+
+    },201
+
+@app.route("/api/study-habits/<int:habit_id>", methods =["DELETE"])
+def delete_study_habit(habit_id):
+    habit = StudyHabit.query.get(habit_id)
+
+    if not habit:
+        return{"error": "Study habit not found"}, 404
+
+    db.session.delete(habit)
+    db.session.commit()
+
+    return{"message": "Study habit delete"}
+
+
 
 #pdf upload
 @app.route("/api/upload-syllabus" , methods = ["POST"])
