@@ -1,29 +1,26 @@
-//file upload
+// === Handle File Upload ===
 const fileInput = document.getElementById("fileInput");
-const startButton = document.getElementById("startBtn");
 const uploadedList = document.getElementById("uploadedList");
-
-// store uploaded 
+const uploadStatus = document.getElementById("uploadStatus");
+const startStatus = document.getElementById("startStatus");
 let selectedFile = null;
 
-// handle file 
-fileInput.addEventListener("change", (e) => {
-    selectedFile = e.target.files[0];
-
-    uploadedList.innerHTML = `
-        <p>1. ${selectedFile.name}</p>
-    `;
+// Click upload box to open file selector
+document.getElementById("upload-box").addEventListener("click", () => {
+    fileInput.click();
 });
 
-// send file to backend 
-startButton.addEventListener("click", async () => {
-    if (!selectedFile) {
-        alert("Please upload a file first!");
-        return;
-    }
+// When a file is chosen
+fileInput.addEventListener("change", async () => {
+    selectedFile = fileInput.files[0];
+    if (!selectedFile) return;
+
+    uploadedList.innerHTML = `<li>${selectedFile.name}</li>`;
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+
+    uploadStatus.innerText = "Uploading...";
 
     try {
         const response = await fetch("http://127.0.0.1:5000/upload", {
@@ -32,11 +29,39 @@ startButton.addEventListener("click", async () => {
         });
 
         const result = await response.json();
-        console.log(result);
 
-        alert("Dates extracted! Check console for output.");
+        if (result.success) {
+            uploadStatus.innerText = "Upload complete!";
+        } else {
+            uploadStatus.innerText = "Upload failed.";
+        }
+    } catch (err) {
+        uploadStatus.innerText = "Server error.";
+        console.error(err);
+    }
+});
 
-    } catch (error) {
-        console.error("Upload failed:", error);
+// === START BUTTON — REQUEST CALENDAR GENERATION ===
+document.getElementById("startBtn").addEventListener("click", async () => {
+    startStatus.innerText = "Working...";
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/generate", {
+            method: "POST"
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            startStatus.innerHTML =
+                `<a href="http://127.0.0.1:5000/download/${result.file}" target="_blank">
+                    Download Calendar
+                </a>`;
+        } else {
+            startStatus.innerText = "Error generating calendar.";
+        }
+    } catch (err) {
+        startStatus.innerText = "Server error.";
+        console.error(err);
     }
 });
