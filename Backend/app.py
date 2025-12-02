@@ -1,23 +1,23 @@
 import os
 import re
 import requests
-from models import StudyHabit
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from models import init_db, db, Assignment
+from models import init_db, db, Assignment, StudyHabit, Syllabus
+import PyPDF2
 
-app = Flask(__name__)
+app = Flask(__name__)    #UPLOAD
 CORS(app)
 
-# upload
 
 UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok = True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# initialize database + create tables
-init_db(app)
+
+init_db(app)    # initialize database + create tables
+
 
 
 @app.route("/api/health")
@@ -25,32 +25,30 @@ def health():
     return {"status": "ok"}
 
 
-# GET /api/assignments  -> list all assignments
-@app.route("/api/assignments", methods=["GET"])
+
+@app.route("/api/assignments", methods=["GET"])  # GET
 def get_assignments():
     assignments = Assignment.query.all()
     return jsonify([a.to_dict() for a in assignments])
 
 
-# POST /api/assignments -> create a new assignment
-@app.route("/api/assignments", methods=["POST"])
+@app.route("/api/assignments", methods=["POST"])   # POST
 def create_assignment():
     data = request.get_json() or {}
 
-    # Simple validation
-    required = ["title", "dueDate"]
+    required = ["title", "dueDate"]    # Simple validation
     for field in required:
         if field not in data:
             return {"error": f"Missing field '{field}'"}, 400
 
     assignment = Assignment(
-        course_id=data.get("courseId"),         # optional for now
+        course_id=data.get("courseId"),
         title=data["title"],
         description=data.get("description"),
         due_date=data["dueDate"],
         assignment_type=data.get("assignmentType"),
         priority=data.get("priority", 1),
-        estimated_hours=data.get("estimatedHours"),
+        estimated_hours=data.get("estimatedHours")
     )
 
     db.session.add(assignment)
@@ -58,200 +56,185 @@ def create_assignment():
 
     return assignment.to_dict(), 201
 
-#compent of study habits
-@app.route("/api/study-habits", methods=["GET"])
+
+
+@app.route("/api/study-habits", methods=["GET"]) #get
 def get_study_habits():
     habits = StudyHabit.query.all()
     return jsonify([
-    {
-        "id" : h.id,
-        "days0fWeek" : h.days_of_week,
-        "startTime" : h.start_time,
-        "endTime" : h.end_time
-    }
-    for h in habits
-
+        {
+            "id": h.id,
+            "daysOfWeek": h.days_of_week,
+            "startTime": h.start_time,
+            "endTime": h.end_time
+        }
+        for h in habits
     ])
 
-@app.route("/api/study-habits", methods=["POST"])
-def create_study_habits():
+
+@app.route("/api/study-habits", methods=["POST"]) #study habit
+def create_study_habit():
     data = request.get_json() or {}
 
     required = ["daysOfWeek", "startTime", "endTime"]
     for field in required:
         if field not in data:
-            return{"error": f"Missing field '{field}'"}, 400
+            return {"error": f"Missing field '{field}'"}, 400
 
     habit = StudyHabit(
-        user_id= 1,
-        days_of_week = data["dayOfWeek"],
+        user_id=1,
+        days_of_week=data["daysOfWeek"],
         start_time=data["startTime"],
-        end_time=data["EndTime"]
+        end_time=data["endTime"]
     )
 
     db.session.add(habit)
     db.session.commit()
 
-    return{
+    return {
         "id": habit.id,
         "daysOfWeek": habit.days_of_week,
         "startTime": habit.start_time,
-        "endTime" : habit.end_time
-
-    },201
-
-@app.route("/api/study-habits/<int:habit_id>", methods =["DELETE"])
-def delete_study_habit(habit_id):
-    habit = StudyHabit.query.get(habit_id)
-
-    if not habit:
-        return{"error": "Study habit not found"}, 404
-
-    db.session.delete(habit)
-    db.session.commit()
-
-    return{"message": "Study habit delete"}
-
-
-
-#pdf upload
-@app.route("/api/upload-syllabus" , methods = ["POST"])
-def upload_syllabus():
-    if "file" not in request.files:
-        return{"error": "No file uploaded"}, 400
-
-    file = request.files ["file"]
-
-    if file.filename== "":
-        return{"error": "Empty filename"}, 400
-
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config ["UPLOAD_FOLDER"], filename)
-    file.save(filepath)
-
-    syllabus = Syllabus (original_filename =filename)
-    db.session.add(syllabus)
-    db.session.commit()
-# this is for extract and analyze
-extracted = extract_assignments_from_pdf(filepath)
-
-# calls to save the assignments
-for item in extracted:
-    a = Assignment(
-    course_id = None,
-    title = item ["title"],
-    due_date=item ["dueDate"],
-
-    )
-    db.session.add(a)
-    db.session.commit()
-
-    return{
-    "message": "Syllabus uploaded & analyzed",
-    "assignmentsExtracted": extracted
+        "endTime": habit.end_time
     }, 201
 
 
-#this part is for SYL from a Url
+@app.route("/api/study-habits/<int:habit_id>", methods=["DELETE"])
+def delete_study_habit(habit_id):
+    habit = StudyHabit.query.get(habit_id)
+    if not habit:
+        return {"error": "Study habit not found"}, 404
 
-@app.route("/api/import-url", methods=["POST"])
-def import_url():
-    data = request.get_json()
-    if "url" not in data:
-        return{"error" : "Missing URL"}, 400
+    db.session.delete(habit)
+    db.session.commit()
+    return {"message": "Study habit deleted"}
 
-   url = data ["url"]
-# download pdf
-   try:
-       response = requests.get (url)
-       if response.status_code != 200:
-           return {"error": "Failed to download file"}, 400
-# save for temp
-    filename = "url_import.pdf"
+
+
+@app.route("/api/upload-syllabus", methods=["POST"])
+def upload_syllabus():
+    if "file" not in request.files:
+        return {"error": "No file uploaded"}, 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return {"error": "Empty filename"}, 400
+
+    filename = secure_filename(file.filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(filepath)
 
-    with open(filepath, "wb") as f:
-        f.write(response.content)
+    syllabus = Syllabus(original_filename=filename)
+    db.session.add(syllabus)
+    db.session.commit()
 
-except Exception as e:
-    return {"error" : str(e)}, 500
+    extracted = extract_assignments_from_pdf(filepath)
 
+    for item in extracted:
+        a = Assignment(
+            course_id=None,
+            title=item["title"],
+            due_date=item["dueDate"]
+        )
+        db.session.add(a)
 
-   syllabus = Syllabus(original_filename=filename)
-       db.session.add(syllabus)
-       db.session.commit()
+    db.session.commit()
 
-       # analyze PDF
-       extracted = extract_assignments_from_pdf(filepath)
-
-       # insert extracted assignments
-       for item in extracted:
-           a = Assignment(
-               course_id=None,
-               title=item["title"],
-               due_date=item["dueDate"],
-           )
-           db.session.add(a)
-
-       db.session.commit()
-
-       return {
-           "message": "URL PDF imported & analyzed",
-           "assignmentsExtracted": extracted
+    return {
+        "message": "Syllabus uploaded & analyzed",
+        "assignmentsExtracted": extracted
+    }, 201
 
 
-       }, 201
+
+@app.route("/api/import-url", methods=["POST"])  #this part is for SYL from a Url
+def import_url():
+    data = request.get_json() or {}
+
+    if "url" not in data:
+        return {"error": "Missing URL"}, 400
+
+    url = data["url"]  # download pdf
+
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            return {"error": "Failed to download file"}, 400
+
+        filename = "url_import.pdf"     # save for temp
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+    syllabus = Syllabus(original_filename=filename)
+    db.session.add(syllabus)
+    db.session.commit()
+                                                       # analyze PDF
+    extracted = extract_assignments_from_pdf(filepath)
+
+    for item in extracted:
+        a = Assignment(
+            course_id=None,
+            title=item["title"],
+            due_date=item["dueDate"]
+        )
+        db.session.add(a)
+
+    db.session.commit()
+
+    return {
+        "message": "URL PDF imported & analyzed",
+        "assignmentsExtracted": extracted
+    }, 201
 
 
-def extract_assignments_from_pdf(filepath)
-"""
-SUPER sinmple assignment extractor.
-Looks for:
-    -dates (Feb 20, 2/12/25, Apr.5)
-    -lines with assignments names before the date
-"""
-try:
-    import PyPDF2
-    expect ImportError:
-    return[]
 
-text = ""
-try:
-    reader = PyPDF2.PdfReader(filepath)
-    for page in reader.pages:
-        text += page.extract_text() + "\n"
-except:
-    return[]
+def extract_assignments_from_pdf(filepath):
+    """
+    Extracts assignments by scanning for date patterns + titles
+    """
+    text = ""
 
-assignments = []
+    try:
+        reader = PyPDF2.PdfReader(filepath)
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
+    except:
+        return []
 
-#this detects due dates
+    assignments = []
 
-date_patterns = [
-r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}",
+    date_patterns = [
+        r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}",  #this detects due dates
         r"\b\d{1,2}/\d{1,2}/\d{2,4}\b",
         r"\b\d{1,2}/\d{1,2}\b"
-]
-lines = text.split("\n")
-for line in lines:
-    cleaned = line.strip()
-    if len(cleaned)<4:
-        continue
-    for pattern in date_patterns:
-        match = re.search(pattern, cleaned)
-        if match:
-            title = cleaned.replace(match.group(), "").strip()
-            due_date = match.group()
-            assignments.append({
-            "title": title if title else "Assignment",
-            "dueDate": due_date
+    ]
 
-            })
-            break
+    lines = text.split("\n")
+    for line in lines:
+        cleaned = line.strip()
+        if len(cleaned) < 4:
+            continue
 
-  return assignments
+        for pattern in date_patterns:
+            match = re.search(pattern, cleaned)
+            if match:
+                title = cleaned.replace(match.group(), "").strip()
+                due_date = match.group()
 
+                assignments.append({
+                    "title": title if title else "Assignment",
+                    "dueDate": due_date
+                })
+                break
 
+    return assignments
 
 
 

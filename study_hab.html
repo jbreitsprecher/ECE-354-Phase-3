@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Study Habits Tester</title>
+</head>
+<body>
+<h1>Study Habits API Tester</h1>
+
+<h2>Add Study Habit</h2>
+<form id="habitForm">
+    <label>Days of Week:</label>
+    <input type="text" id="days" placeholder="Mon,Wed,Fri"><br><br>
+
+    <label>Start Time:</label>
+    <input type="text" id="start" placeholder="18:00"><br><br>
+
+    <label>End Time:</label>
+    <input type="text" id="end" placeholder="20:00"><br><br>
+
+    <button type="submit">Add Habit</button>
+</form>
+
+<hr>
+
+<h2>All Study Habits</h2>
+<button onclick="loadHabits()">Refresh List</button>
+<pre id="habitList"></pre>
+
+<script>
+    async function loadHabits() {
+        const res = await fetch("http://localhost:5000/api/study-habits");
+        const habits = await res.json();
+        document.getElementById("habitList").textContent =
+            JSON.stringify(habits, null, 2);
+    }
+
+    // Submit form
+    document.getElementById("habitForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = {
+            daysOfWeek: document.getElementById("days").value,
+            startTime: document.getElementById("start").value,
+            endTime: document.getElementById("end").value
+        };
+
+        await fetch("http://localhost:5000/api/study-habits", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
+
+        loadHabits(); // reload list
+    });
+</script>
+
+</body>
+</html>
