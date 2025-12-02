@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syllabus Extractor App</title>
+    <title>Syllabus Scanner</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="app-container">
-    <h1 class="logo">Logo</h1>
-    <h2 class="section-title">UPLOAD</h2>
-
-    <div class="upload-area" id="uploadBox">
-        <p class="upload-icon">⬆️</p>
-        <p class="upload-text">Upload Document<br><span>Tap to Upload</span></p>
-        <input type="file" id="fileInput" accept=".pdf" hidden>
+    <div class="top-bar">
+        <h1>Logo</h1>
+        <span id="date"></span>
     </div>
 
-    <div class="url-box">
-        <input type="text" id="urlInput" placeholder="Paste URL here...">
-        <button id="uploadUrlBtn">Upload URL</button>
+    <h2 id="screen-title">UPLOAD</h2>
+
+    <div id="upload-box" class="upload-area">
+        <div class="upload-icon">⬆️</div>
+        <p><strong>Upload Document</strong></p>
+        <p>Tap to Upload</p>
+        <input type="file" id="fileInput" hidden>
     </div>
 
-    <h3 class="sub-title">Uploaded Files</h3>
-    <ul id="fileList" class="file-list"></ul>
-
-    <div class="action-buttons">
-        <button id="startBtn" class="start-btn">Start</button>
-        <button id="cancelBtn" class="cancel-btn">Cancel</button>
+    <div id="uploaded-files">
+        <h3>Uploaded Files</h3>
+        <ul id="fileList"></ul>
     </div>
-</div>
 
-<script src="app.js"></script>
+    <div class="button-row">
+        <button id="startBtn">Start</button>
+        <button id="cancelBtn" class="cancel">Cancel</button>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
-<!-- test -->
