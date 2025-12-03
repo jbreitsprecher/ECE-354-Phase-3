@@ -1,4 +1,3 @@
-
 window.onload = async () => {
     const container = document.getElementById("assignmentContainer");
 

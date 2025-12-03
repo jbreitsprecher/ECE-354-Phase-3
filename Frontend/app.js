@@ -44,7 +44,7 @@ fileInput.addEventListener("change", () => {
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch("http://127.0.0.1:5000/upload", { method: "POST", body: formData })
+    fetch("http://127.0.0.1:5000/api/upload-syllabus", { method: "POST", body: formData })
         .then(res => res.json())
         .then(data => {
             extractResults.innerHTML = `<p style="color:green;">✓ File processed successfully!</p>`;
