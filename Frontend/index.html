@@ -14,7 +14,7 @@
         <p id="date"></p>
     </div>
 
-    <!-- PAGE 1: UPLOAD -->
+    
     <div id="page-upload">
 
         <h2 class="page-title">UPLOAD</h2>
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-   
+    
     <div id="page-assignments" class="hidden">
 
         <h2 class="page-title">GENERATE SCHEDULE</h2>
@@ -55,6 +55,20 @@
             <button id="generateBtn">Generate Schedule</button>
         </div>
     </div>
+
+   
+    <script>
+        const dateElement = document.getElementById("date");
+        if (dateElement) {
+            const today = new Date().toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            });
+            dateElement.textContent = today;
+        }
+    </script>
 
     
     <script src="app.js"></script>
