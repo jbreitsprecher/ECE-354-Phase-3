@@ -1,4 +1,4 @@
-// === Handle File Upload ===
+//File Upload 
 const fileInput = document.getElementById("fileInput");
 const uploadedList = document.getElementById("uploadedList");
 const uploadStatus = document.getElementById("uploadStatus");
@@ -17,51 +17,51 @@ fileInput.addEventListener("change", async () => {
 
     uploadedList.innerHTML = `<li>${selectedFile.name}</li>`;
 
+    uploadStatus.innerText = "Ready to Upload.";
+});
+
+// Start Button 
+document.getElementById("startButton").addEventListener("click", async () => {
+    if (!selectedFile) {
+        uploadStatus.innerHTML = `<span style="color:red;">❌ No file selected.</span>`;
+        return;
+    }
+
+    uploadStatus.innerText = "Uploading…";
+
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    uploadStatus.innerText = "Uploading...";
-
     try {
-        const response = await fetch("http://127.0.0.1:5000/upload", {
+        const response = await fetch("http://127.0.0.1:5000/api/upload-syllabus", {
             method: "POST",
-            body: formData
+            body: formData,
         });
+
+        if (!response.ok) {
+            uploadStatus.innerHTML = `<span style="color:red;">❌ Upload failed.</span>`;
+            return;
+        }
 
         const result = await response.json();
 
-        if (result.success) {
-            uploadStatus.innerText = "Upload complete!";
+        uploadStatus.innerHTML = `<span style="color:lime;">✔️ File processed successfully!</span>`;
+
+        // Show extracted assignments
+        if (result.assignmentsExtracted && result.assignmentsExtracted.length > 0) {
+            let html = "<h3>Extracted Assignments:</h3><ul>";
+            result.assignmentsExtracted.forEach(a => {
+                html += `<li><strong>${a.title}</strong> — Due: ${a.dueDate}</li>`;
+            });
+            html += "</ul>";
+
+            startStatus.innerHTML = html;
         } else {
-            uploadStatus.innerText = "Upload failed.";
+            startStatus.innerHTML = "<p>No assignments found in this file.</p>";
         }
+
     } catch (err) {
-        uploadStatus.innerText = "Server error.";
         console.error(err);
-    }
-});
-
-// === START BUTTON — REQUEST CALENDAR GENERATION ===
-document.getElementById("startBtn").addEventListener("click", async () => {
-    startStatus.innerText = "Working...";
-
-    try {
-        const response = await fetch("http://127.0.0.1:5000/generate", {
-            method: "POST"
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            startStatus.innerHTML =
-                `<a href="http://127.0.0.1:5000/download/${result.file}" target="_blank">
-                    Download Calendar
-                </a>`;
-        } else {
-            startStatus.innerText = "Error generating calendar.";
-        }
-    } catch (err) {
-        startStatus.innerText = "Server error.";
-        console.error(err);
+        uploadStatus.innerHTML = `<span style="color:red;">❌ Error: ${err.message}</span>`;
     }
 });

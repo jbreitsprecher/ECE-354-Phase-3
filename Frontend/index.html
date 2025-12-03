@@ -15,6 +15,7 @@
 
     <h2 id="screen-title">UPLOAD</h2>
 
+    <!-- upload -->
     <div id="upload-box" class="upload-area">
         <div class="upload-icon">⬆️</div>
         <p><strong>Upload Document</strong></p>
@@ -22,13 +23,19 @@
         <input type="file" id="fileInput" hidden>
     </div>
 
+    <!-- File Name -->
     <div id="uploaded-files">
         <h3>Uploaded Files</h3>
-        <ul id="fileList"></ul>
+        <ul id="uploadedList"></ul>   
     </div>
 
+    <!-- status messages -->
+    <p id="uploadStatus"></p>
+    <div id="startStatus"></div>
+
+    <!-- buttons -->
     <div class="button-row">
-        <button id="startBtn">Start</button>
+        <button id="startButton">Start</button> 
         <button id="cancelBtn" class="cancel">Cancel</button>
     </div>
 

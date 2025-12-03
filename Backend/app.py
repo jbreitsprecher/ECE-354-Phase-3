@@ -1,13 +1,13 @@
 import os
 import re
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from models import init_db, db, Assignment, StudyHabit, Syllabus
 import PyPDF2
 
-app = Flask(__name__)    #UPLOAD
+app = Flask(__name__)
 CORS(app)
 
 
@@ -15,8 +15,8 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
-init_db(app)    # initialize database + create tables
+# initialize database
+init_db(app)
 
 
 
@@ -26,17 +26,17 @@ def health():
 
 
 
-@app.route("/api/assignments", methods=["GET"])  # GET
+@app.route("/api/assignments", methods=["GET"])
 def get_assignments():
     assignments = Assignment.query.all()
     return jsonify([a.to_dict() for a in assignments])
 
 
-@app.route("/api/assignments", methods=["POST"])   # POST
+@app.route("/api/assignments", methods=["POST"])
 def create_assignment():
     data = request.get_json() or {}
 
-    required = ["title", "dueDate"]    # Simple validation
+    required = ["title", "dueDate"]
     for field in required:
         if field not in data:
             return {"error": f"Missing field '{field}'"}, 400
@@ -58,7 +58,7 @@ def create_assignment():
 
 
 
-@app.route("/api/study-habits", methods=["GET"]) #get
+@app.route("/api/study-habits", methods=["GET"])
 def get_study_habits():
     habits = StudyHabit.query.all()
     return jsonify([
@@ -72,7 +72,7 @@ def get_study_habits():
     ])
 
 
-@app.route("/api/study-habits", methods=["POST"]) #study habit
+@app.route("/api/study-habits", methods=["POST"])
 def create_study_habit():
     data = request.get_json() or {}
 
@@ -85,7 +85,7 @@ def create_study_habit():
         user_id=1,
         days_of_week=data["daysOfWeek"],
         start_time=data["startTime"],
-        end_time=data["endTime"]
+        end_time=data["EndTime"]
     )
 
     db.session.add(habit)
@@ -146,22 +146,21 @@ def upload_syllabus():
     }, 201
 
 
-
-@app.route("/api/import-url", methods=["POST"])  #this part is for SYL from a Url
+@app.route("/api/import-url", methods=["POST"])
 def import_url():
     data = request.get_json() or {}
 
     if "url" not in data:
         return {"error": "Missing URL"}, 400
 
-    url = data["url"]  # download pdf
+    url = data["url"]
 
     try:
         response = requests.get(url)
         if response.status_code != 200:
             return {"error": "Failed to download file"}, 400
 
-        filename = "url_import.pdf"     # save for temp
+        filename = "url_import.pdf"
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
         with open(filepath, "wb") as f:
@@ -173,7 +172,7 @@ def import_url():
     syllabus = Syllabus(original_filename=filename)
     db.session.add(syllabus)
     db.session.commit()
-                                                       # analyze PDF
+
     extracted = extract_assignments_from_pdf(filepath)
 
     for item in extracted:
@@ -194,11 +193,8 @@ def import_url():
 
 
 def extract_assignments_from_pdf(filepath):
-    """
-    Extracts assignments by scanning for date patterns + titles
-    """
-    text = ""
 
+    text = ""
     try:
         reader = PyPDF2.PdfReader(filepath)
         for page in reader.pages:
@@ -211,7 +207,7 @@ def extract_assignments_from_pdf(filepath):
     assignments = []
 
     date_patterns = [
-        r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}",  #this detects due dates
+        r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}",
         r"\b\d{1,2}/\d{1,2}/\d{2,4}\b",
         r"\b\d{1,2}/\d{1,2}\b"
     ]
@@ -235,6 +231,43 @@ def extract_assignments_from_pdf(filepath):
                 break
 
     return assignments
+
+
+
+@app.route("/upload", methods=["POST"])
+def upload_file_frontend():
+    if "file" not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"success": False, "error": "Empty filename"}), 400
+
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(filepath)
+
+    return jsonify({"success": True, "filename": filename}), 200
+
+
+@app.route("/generate", methods=["POST"])
+def generate_calendar():
+    output_file = "calendar_output.ics"
+    output_path = os.path.join(app.config["UPLOAD_FOLDER"], output_file)
+
+    with open(output_path, "w") as f:
+        f.write("BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR")
+
+    return jsonify({"success": True, "file": output_file})
+
+
+@app.route("/download/<path:filename>")
+def download_output(filename):
+    return send_from_directory(
+        app.config["UPLOAD_FOLDER"],
+        filename,
+        as_attachment=True
+    )
 
 
 
