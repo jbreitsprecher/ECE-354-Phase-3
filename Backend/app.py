@@ -85,7 +85,7 @@ def create_study_habit():
         user_id=1,
         days_of_week=data["daysOfWeek"],
         start_time=data["startTime"],
-        end_time=data["EndTime"]
+        end_time=data["endTime"]
     )
 
     db.session.add(habit)
