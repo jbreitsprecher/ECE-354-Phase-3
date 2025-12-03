@@ -1,8 +1,5 @@
-
 const dateElement = document.getElementById("date");
-const today = new Date();
-
-dateElement.textContent = today.toLocaleDateString("en-US", {
+dateElement.textContent = new Date().toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -22,7 +19,6 @@ const startBtn = document.getElementById("startBtn");
 const backBtn = document.getElementById("backBtn");
 const generateBtn = document.getElementById("generateBtn");
 
-
 let extractedAssignments = [];
 
 
@@ -36,35 +32,41 @@ fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
     if (!file) return;
 
+    
     const li = document.createElement("li");
     li.textContent = file.name;
     fileList.appendChild(li);
 
-    
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch("http://127.0.0.1:5000/api/upload-syllabus", { method: "POST", body: formData })
-        .then(res => res.json())
-        .then(data => {
-            extractResults.innerHTML = `<p style="color:green;">✓ File processed successfully!</p>`;
+    
+    fetch("http://127.0.0.1:5000/api/upload-syllabus", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        extractResults.innerHTML = `<p style="color:green;">✓ File processed successfully!</p>`;
 
-            if (data.assignments.length === 0) {
-                extractResults.innerHTML += `<p>No assignments found.</p>`;
-            }
+        if (!data.assignments || data.assignments.length === 0) {
+            extractResults.innerHTML += `<p>No assignments found.</p>`;
+            extractedAssignments = [];
+            return;
+        }
 
-            extractedAssignments = data.assignments;
+        extractedAssignments = data.assignments;
 
-            data.assignments.forEach(a => {
-                extractResults.innerHTML += `
-                    <li><strong>${a.title}</strong> — Due: ${a.due}</li>
-                `;
-            });
-        })
-        .catch(err => {
-            extractResults.innerHTML = `<p style="color:red;">Error processing file.</p>`;
-            console.error(err);
+        data.assignments.forEach(a => {
+            extractResults.innerHTML += `
+                <li><strong>${a.title}</strong> — Due: ${a.due}</li>
+            `;
         });
+    })
+    .catch(err => {
+        console.error(err);
+        extractResults.innerHTML = `<p style="color:red;">Error processing file.</p>`;
+    });
 });
 
 
