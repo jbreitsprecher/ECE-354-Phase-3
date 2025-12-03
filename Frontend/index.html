@@ -3,42 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syllabus Scanner</title>
+    <title>From Syllabus to Schedule</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div class="top-bar">
-        <h1>Logo</h1>
-        <span id="date"></span>
+    
+    <div class="mobile-header">
+        <span class="app-icon">📘</span>
+        <h1 class="app-title">From Syllabus to Schedule</h1>
     </div>
 
-    <h2 id="screen-title">UPLOAD</h2>
+    <h2 id="screen-title">GENERATE SCHEDULE</h2>
 
-    <!-- upload -->
-    <div id="upload-box" class="upload-area">
-        <div class="upload-icon">⬆️</div>
-        <p><strong>Upload Document</strong></p>
-        <p>Tap to Upload</p>
-        <input type="file" id="fileInput" hidden>
+    <p class="page-desc">Review extracted assignments below and generate your study schedule.</p>
+
+   
+    <div id="assignmentContainer" class="assignment-container">
+        <p>Loading assignments...</p>
     </div>
 
-    <!-- File Name -->
-    <div id="uploaded-files">
-        <h3>Uploaded Files</h3>
-        <ul id="uploadedList"></ul>   
-    </div>
-
-    <!-- status messages -->
-    <p id="uploadStatus"></p>
-    <div id="startStatus"></div>
-
-    <!-- buttons -->
+    
     <div class="button-row">
-        <button id="startButton">Start</button> 
-        <button id="cancelBtn" class="cancel">Cancel</button>
+        <button id="makeScheduleBtn">Generate</button>
+        <button class="cancel" onclick="window.location.href='index.html'">Back</button>
     </div>
 
-    <script src="app.js"></script>
+    <script src="generate.js"></script>
 </body>
 </html>
