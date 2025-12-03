@@ -1,6 +1,9 @@
 const dateElement = document.getElementById("date");
 const today = new Date();
 
+const API_BASE = "http://127.0.0.1:5000";
+
+
 dateElement.textContent = today.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
@@ -115,8 +118,95 @@ backBtn.addEventListener("click", () => {
     pageUpload.classList.remove("hidden");
 });
 
+// Simple Calendar (WIP)
 
+let calCurrentMonth = new Date().getMonth();
+let calCurrentYear = new Date().getFullYear();
 
-generateBtn.addEventListener("click", () => {
-    alert("Schedule generation coming next! ");
+function renderSimpleCalendar(year, month) {
+  const monthLabel = document.getElementById("calendar-month-label");
+  const body = document.getElementById("calendar-body");
+
+  if (!monthLabel || !body) {
+    return;
+  }
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  monthLabel.textContent = `${monthNames[month]} ${year}`;
+
+  body.innerHTML = "";
+
+  const firstDay = new Date(year, month, 1);
+  const startingWeekday = firstDay.getDay(); // 0 = Sunday
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let currentDay = 1;
+  let row = document.createElement("tr");
+
+  // Empty cells before the first day
+  for (let i = 0; i < startingWeekday; i++) {
+    row.appendChild(document.createElement("td"));
+  }
+
+  // Fill the days
+  while (currentDay <= daysInMonth) {
+    if (row.children.length === 7) {
+      body.appendChild(row);
+      row = document.createElement("tr");
+    }
+
+    const cell = document.createElement("td");
+
+    const dayNumber = document.createElement("div");
+    dayNumber.className = "calendar-day-number";
+    dayNumber.textContent = currentDay;
+    cell.appendChild(dayNumber);
+
+    row.appendChild(cell);
+    currentDay++;
+  }
+
+  // Fill trailing empty cells
+  while (row.children.length < 7) {
+    row.appendChild(document.createElement("td"));
+  }
+
+  body.appendChild(row);
+}
+
+function initSimpleCalendarControls() {
+  const prevBtn = document.getElementById("prev-month");
+  const nextBtn = document.getElementById("next-month");
+
+  if (!prevBtn || !nextBtn) {
+    return;
+  }
+
+  prevBtn.addEventListener("click", () => {
+    calCurrentMonth--;
+    if (calCurrentMonth < 0) {
+      calCurrentMonth = 11;
+      calCurrentYear--;
+    }
+    renderSimpleCalendar(calCurrentYear, calCurrentMonth);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    calCurrentMonth++;
+    if (calCurrentMonth > 11) {
+      calCurrentMonth = 0;
+      calCurrentYear++;
+    }
+    renderSimpleCalendar(calCurrentYear, calCurrentMonth);
+  });
+}
+
+// Initialize the simple calendar on page load
+window.addEventListener("DOMContentLoaded", () => {
+  initSimpleCalendarControls();
+  renderSimpleCalendar(calCurrentYear, calCurrentMonth);
 });
