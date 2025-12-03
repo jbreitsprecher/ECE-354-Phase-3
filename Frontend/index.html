@@ -9,26 +9,56 @@
 <body>
 
     
-    <div class="mobile-header">
-        <span class="app-icon">📘</span>
-        <h1 class="app-title">From Syllabus to Schedule</h1>
+    <div id="app-header">
+        <h1>From Syllabus to Schedule</h1>
+        <p id="date"></p>
     </div>
 
-    <h2 id="screen-title">GENERATE SCHEDULE</h2>
+    <!-- PAGE 1: UPLOAD -->
+    <div id="page-upload">
 
-    <p class="page-desc">Review extracted assignments below and generate your study schedule.</p>
+        <h2 class="page-title">UPLOAD</h2>
+
+        <div id="upload-box" class="upload-area">
+            <div class="upload-icon">⬆️</div>
+            <p><strong>Upload Document</strong></p>
+            <p>Tap to Upload</p>
+
+            <input type="file" id="fileInput" hidden>
+        </div>
+
+        <div id="uploaded-files">
+            <h3>Uploaded Files</h3>
+            <ul id="fileList"></ul>
+        </div>
+
+        <div id="extract-results"></div>
+
+        <div class="button-row">
+            <button id="startBtn">Start</button>
+            <button id="cancelBtn" class="cancel">Cancel</button>
+        </div>
+    </div>
 
    
-    <div id="assignmentContainer" class="assignment-container">
-        <p>Loading assignments...</p>
+    <div id="page-assignments" class="hidden">
+
+        <h2 class="page-title">GENERATE SCHEDULE</h2>
+        <p class="page-desc">
+            Review extracted assignments below and generate your study schedule.
+        </p>
+
+        <div id="assignmentList" class="assignment-container"></div>
+
+        <div class="button-row">
+            <button id="backBtn" class="cancel">Back</button>
+            <button id="generateBtn">Generate Schedule</button>
+        </div>
     </div>
 
     
-    <div class="button-row">
-        <button id="makeScheduleBtn">Generate</button>
-        <button class="cancel" onclick="window.location.href='index.html'">Back</button>
-    </div>
-
+    <script src="app.js"></script>
     <script src="generate.js"></script>
+
 </body>
 </html>

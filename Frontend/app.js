@@ -1,67 +1,102 @@
-//File Upload 
+
+const dateElement = document.getElementById("date");
+const today = new Date();
+
+dateElement.textContent = today.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+});
+
+
 const fileInput = document.getElementById("fileInput");
-const uploadedList = document.getElementById("uploadedList");
-const uploadStatus = document.getElementById("uploadStatus");
-const startStatus = document.getElementById("startStatus");
-let selectedFile = null;
+const uploadBox = document.getElementById("upload-box");
+const fileList = document.getElementById("fileList");
+const extractResults = document.getElementById("extract-results");
 
-// Click upload box to open file selector
-document.getElementById("upload-box").addEventListener("click", () => {
-    fileInput.click();
+const pageUpload = document.getElementById("page-upload");
+const pageAssignments = document.getElementById("page-assignments");
+
+const startBtn = document.getElementById("startBtn");
+const backBtn = document.getElementById("backBtn");
+const generateBtn = document.getElementById("generateBtn");
+
+
+let extractedAssignments = [];
+
+
+uploadBox.addEventListener("click", () => fileInput.click());
+
+
+fileInput.addEventListener("change", () => {
+    fileList.innerHTML = "";
+    extractResults.innerHTML = "";
+
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const li = document.createElement("li");
+    li.textContent = file.name;
+    fileList.appendChild(li);
+
+    
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch("http://127.0.0.1:5000/upload", { method: "POST", body: formData })
+        .then(res => res.json())
+        .then(data => {
+            extractResults.innerHTML = `<p style="color:green;">✓ File processed successfully!</p>`;
+
+            if (data.assignments.length === 0) {
+                extractResults.innerHTML += `<p>No assignments found.</p>`;
+            }
+
+            extractedAssignments = data.assignments;
+
+            data.assignments.forEach(a => {
+                extractResults.innerHTML += `
+                    <li><strong>${a.title}</strong> — Due: ${a.due}</li>
+                `;
+            });
+        })
+        .catch(err => {
+            extractResults.innerHTML = `<p style="color:red;">Error processing file.</p>`;
+            console.error(err);
+        });
 });
 
-// When a file is chosen
-fileInput.addEventListener("change", async () => {
-    selectedFile = fileInput.files[0];
-    if (!selectedFile) return;
 
-    uploadedList.innerHTML = `<li>${selectedFile.name}</li>`;
-
-    uploadStatus.innerText = "Ready to Upload.";
-});
-
-// Start Button 
-document.getElementById("startButton").addEventListener("click", async () => {
-    if (!selectedFile) {
-        uploadStatus.innerHTML = `<span style="color:red;">❌ No file selected.</span>`;
+startBtn.addEventListener("click", () => {
+    if (extractedAssignments.length === 0) {
+        alert("Upload a file first!");
         return;
     }
 
-    uploadStatus.innerText = "Uploading…";
+    pageUpload.classList.add("hidden");
+    pageAssignments.classList.remove("hidden");
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+    const container = document.getElementById("assignmentList");
+    container.innerHTML = "";
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/api/upload-syllabus", {
-            method: "POST",
-            body: formData,
-        });
+    extractedAssignments.forEach(a => {
+        container.innerHTML += `
+            <div class="assignment-card">
+                <h3>${a.title}</h3>
+                <p>Due: ${a.due}</p>
+            </div>
+        `;
+    });
+});
 
-        if (!response.ok) {
-            uploadStatus.innerHTML = `<span style="color:red;">❌ Upload failed.</span>`;
-            return;
-        }
 
-        const result = await response.json();
+backBtn.addEventListener("click", () => {
+    pageAssignments.classList.add("hidden");
+    pageUpload.classList.remove("hidden");
+});
 
-        uploadStatus.innerHTML = `<span style="color:lime;">✔️ File processed successfully!</span>`;
 
-        // Show extracted assignments
-        if (result.assignmentsExtracted && result.assignmentsExtracted.length > 0) {
-            let html = "<h3>Extracted Assignments:</h3><ul>";
-            result.assignmentsExtracted.forEach(a => {
-                html += `<li><strong>${a.title}</strong> — Due: ${a.dueDate}</li>`;
-            });
-            html += "</ul>";
-
-            startStatus.innerHTML = html;
-        } else {
-            startStatus.innerHTML = "<p>No assignments found in this file.</p>";
-        }
-
-    } catch (err) {
-        console.error(err);
-        uploadStatus.innerHTML = `<span style="color:red;">❌ Error: ${err.message}</span>`;
-    }
+generateBtn.addEventListener("click", () => {
+    alert("Schedule generation coming next! 📅");
 });
