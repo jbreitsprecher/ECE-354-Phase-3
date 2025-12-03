@@ -118,5 +118,5 @@ backBtn.addEventListener("click", () => {
 
 
 generateBtn.addEventListener("click", () => {
-    alert("Schedule generation coming next! 📅");
+    alert("Schedule generation coming next! ");
 });
