@@ -1,9 +1,9 @@
 const dateElement = document.getElementById("date");
 const today = new Date();
-
+// base for flask backend
 const API_BASE = "http://127.0.0.1:5000";
 
-
+// this displays the date
 dateElement.textContent = today.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
@@ -12,15 +12,15 @@ dateElement.textContent = today.toLocaleDateString("en-US", {
 });
 
 
-
+//file upload constructor 
 const fileInput = document.getElementById("fileInput");
 const uploadBox = document.getElementById("upload-box");
 const fileList = document.getElementById("fileList");
 const extractResults = document.getElementById("extract-results");
-
+//page splitting into 2
 const pageUpload = document.getElementById("page-upload");
 const pageAssignments = document.getElementById("page-assignments");
-
+//first screen buttons
 const startBtn = document.getElementById("startBtn");
 const backBtn = document.getElementById("backBtn");
 const generateBtn = document.getElementById("generateBtn");
@@ -28,11 +28,11 @@ const generateBtn = document.getElementById("generateBtn");
 let extractedAssignments = [];
 
 
-
+//file BOX UPload
 uploadBox.addEventListener("click", () => fileInput.click());
 
 
-
+// file upload and extract
 fileInput.addEventListener("change", () => {
     fileList.innerHTML = "";
     extractResults.innerHTML = "";
@@ -40,12 +40,12 @@ fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    
+    //display file name
     const li = document.createElement("li");
     li.textContent = file.name;
     fileList.appendChild(li);
 
-    
+    // prepares to send the file to backend 
     const formData = new FormData();
     formData.append("file", file);
 
@@ -112,7 +112,7 @@ startBtn.addEventListener("click", () => {
 });
 
 
-
+// start button
 backBtn.addEventListener("click", () => {
     pageAssignments.classList.add("hidden");
     pageUpload.classList.remove("hidden");

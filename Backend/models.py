@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-
+ # sets up the database SQLite and creates all necessary tables
 
 def init_db(app):
     """Configure the app for SQLite and create all tables."""
@@ -13,7 +13,7 @@ def init_db(app):
     with app.app_context():
         db.create_all()
 
-
+ # this is for the single user of the system
 class User(db.Model):
     __tablename__ = "users"
 
@@ -23,7 +23,7 @@ class User(db.Model):
 
     courses = db.relationship("Course", backref="user", lazy=True)
     study_habits = db.relationship("StudyHabit", backref="user", lazy=True)
-
+ # the is the course model, it represents classes and the classes that belong to the user
 
 class Course(db.Model):
     __tablename__ = "courses"
@@ -38,7 +38,7 @@ class Course(db.Model):
     syllabi = db.relationship("Syllabus", backref="course", lazy=True)
     assignments = db.relationship("Assignment", backref="course", lazy=True)
 
-
+# this stores the upload syllabus for each course
 class Syllabus(db.Model):
     __tablename__ = "syllabi"
 
@@ -48,7 +48,7 @@ class Syllabus(db.Model):
     original_filename = db.Column(db.String, nullable=True)
     # later: you can add a file path or raw text
 
-
+ #this is the assignment model, stores each assignment that is extraxed from the syllabus
 class Assignment(db.Model):
     __tablename__ = "assignments"
 
@@ -77,7 +77,7 @@ class Assignment(db.Model):
         }
 
 
-
+# this stores the weekly study rules
 class StudyHabit(db.Model):
     __tablename__ = "study_habits"
 

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">                      <!-- this scales the layout -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>From Syllabus to Schedule</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div id="app-header">
+    <div id="app-header">   <!-- the app header-->
         <h1>From Syllabus to Schedule</h1>
-        <p id="date"></p>
+        <p id="date"></p> <!--updates the date in the file-->
     </div>
 
     
@@ -19,20 +19,20 @@
         <h2 class="page-title">UPLOAD</h2>
 
         <div id="upload-box" class="upload-area">
-            <div class="upload-icon">⬆️</div>
+            <div class="upload-icon">⬆️</div> <!-- drag and drop function-->
             <p><strong>Upload Document</strong></p>
             <p>Tap to Upload</p>
-            <input type="file" id="fileInput" hidden>
+            <input type="file" id="fileInput" hidden> <!-- file triigered by clicking -->
         </div>
 
-        <div id="uploaded-files">
+        <div id="uploaded-files"><!-- this shows the list of files that are uploaded-->
             <h3>Uploaded Files</h3>
             <ul id="fileList"></ul>
         </div>
 
-        <div id="extract-results"></div>
+        <div id="extract-results"></div>   <!-- this displays the extracted assignments-->
 
-        <div class="button-row">
+        <div class="button-row">   <!-- this shows the button that visable to the user-->
             <button id="startBtn">Start</button>
             <button id="cancelBtn" class="cancel">Cancel</button>
         </div>
@@ -94,7 +94,7 @@
         };
     </script>
 
-    <script src="app.js"></script>
+    <script src="app.js"></script> <!--main javas handles all the functions-->
     
 
 </body>

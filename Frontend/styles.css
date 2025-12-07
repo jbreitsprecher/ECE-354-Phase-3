@@ -1,4 +1,4 @@
-
+/* this is the controls the lay out */
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -6,7 +6,7 @@ body {
     text-align: center;
 }
 
-
+/* title and date*/
 #app-header {
     background: black;
     color: white;
@@ -14,6 +14,7 @@ body {
     box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
     margin-bottom: 20px;
 }
+
 
 #app-header h1 {
     margin: 0;
@@ -73,7 +74,7 @@ body {
     font-size: 15px;
 }
 
-
+/* button styles, size */
 .button-row {
     width: 85%;
     margin: 30px auto;
@@ -101,7 +102,7 @@ button {
     color: #333;
 }
 
-
+/* the text of the assignment*/
 .page-desc {
     font-size: 16px;
     width: 90%;

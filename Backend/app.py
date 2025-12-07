@@ -6,7 +6,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from models import init_db, db, Assignment, StudyHabit, Syllabus
 import PyPDF2
-
+# sec 1 sets up flask
 app = Flask(__name__)
 CORS(app)
 
@@ -71,7 +71,7 @@ def get_study_habits():
         for h in habits
     ])
 
-
+# allows the user to config study routines
 @app.route("/api/study-habits", methods=["POST"])
 def create_study_habit():
     data = request.get_json() or {}
@@ -109,7 +109,7 @@ def delete_study_habit(habit_id):
     db.session.commit()
     return {"message": "Study habit deleted"}
 
-
+#this handles the pdf syllabus and uploads and extracts the assignments from the text
 
 @app.route("/api/upload-syllabus", methods=["POST"])
 def upload_syllabus():
@@ -145,7 +145,7 @@ def upload_syllabus():
         "assignmentsExtracted": extracted
     }, 201
 
-
+#allows the user to paste a link instead of uploading a file
 @app.route("/api/import-url", methods=["POST"])
 def import_url():
     data = request.get_json() or {}
@@ -190,7 +190,7 @@ def import_url():
         "assignmentsExtracted": extracted
     }, 201
 
-
+# this scans the syllabus text for dates and sends it to generates
 
 def extract_assignments_from_pdf(filepath):
 
@@ -232,7 +232,7 @@ def extract_assignments_from_pdf(filepath):
 
     return assignments
 
-
+#this is just the the end only used for file uploading the file
 
 @app.route("/upload", methods=["POST"])
 def upload_file_frontend():
@@ -249,7 +249,7 @@ def upload_file_frontend():
 
     return jsonify({"success": True, "filename": filename}), 200
 
-
+# creates a downloadable file
 @app.route("/generate", methods=["POST"])
 def generate_calendar():
     output_file = "calendar_output.ics"
@@ -269,7 +269,7 @@ def download_output(filename):
         as_attachment=True
     )
 
-
+# runs the flask to development server
 
 if __name__ == "__main__":
     app.run(debug=True)
