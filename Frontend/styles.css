@@ -136,3 +136,52 @@ button {
 .hidden {
     display: none;
 }
+
+#calendar-section {
+  margin-top: 2rem;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+#calendar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+#calendar-month-label {
+  font-weight: bold;
+}
+
+#calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#calendar-table th,
+#calendar-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  vertical-align: top;
+  height: 80px;
+  font-size: 0.8rem;
+}
+
+.calendar-day-number {
+  font-weight: bold;
+}
+
+.calendar-assignment {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  background-color: #eef;
+  border-radius: 4px;
+  padding: 0.1rem 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

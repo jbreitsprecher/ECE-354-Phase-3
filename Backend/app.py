@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -252,13 +253,76 @@ def upload_file_frontend():
 # creates a downloadable file
 @app.route("/generate", methods=["POST"])
 def generate_calendar():
+    """Generate a basic .ics calendar file from all assignments."""
     output_file = "calendar_output.ics"
     output_path = os.path.join(app.config["UPLOAD_FOLDER"], output_file)
 
-    with open(output_path, "w") as f:
-        f.write("BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR")
+    assignments = Assignment.query.all()
+
+    def to_ics_date(date_str: str):
+        """
+        Trying to convert various date formats into YYYYMMDD
+        Works for:
+        - YYYY-MM-DD
+        - MM/DD/YYYY
+        - MM/DD/YY
+        - MM/DD  (current year)
+        Returns None if it can't
+        """
+        if not date_str:
+            return None
+
+        s = date_str.strip()
+
+        for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+            try:
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%Y%m%d")
+            except ValueError:
+                continue
+
+        # Trying MM/DD with current year as fallback
+        try:
+            dt = datetime.strptime(s, "%m/%d")
+            dt = dt.replace(year=datetime.now().year)
+            return dt.strftime("%Y%m%d")
+        except ValueError:
+            return None
+
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//From Syllabus To Schedule//EN",
+    ]
+
+    now_utc = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+
+    for a in assignments:
+        ics_date = to_ics_date(a.due_date)
+        if not ics_date:
+            # Skip assignments with unparseable dates
+            continue
+
+        uid = f"{a.id}@from-syllabus-to-schedule"
+
+        lines.extend([
+            "BEGIN:VEVENT",
+            f"UID:{uid}",
+            f"DTSTAMP:{now_utc}",
+            f"DTSTART;VALUE=DATE:{ics_date}",
+            f"DTEND;VALUE=DATE:{ics_date}",
+            f"SUMMARY:{a.title}",
+            "END:VEVENT",
+        ])
+
+    lines.append("END:VCALENDAR")
+
+    # Writing the ICS file
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
     return jsonify({"success": True, "file": output_file})
+
 
 
 @app.route("/download/<path:filename>")
