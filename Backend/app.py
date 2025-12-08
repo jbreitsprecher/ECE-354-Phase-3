@@ -110,6 +110,7 @@ def delete_study_habit(habit_id):
     db.session.commit()
     return {"message": "Study habit deleted"}
 
+
 #this handles the pdf syllabus and uploads and extracts the assignments from the text
 
 @app.route("/api/upload-syllabus", methods=["POST"])
@@ -332,6 +333,7 @@ def download_output(filename):
         filename,
         as_attachment=True
     )
+
 
 # runs the flask to development server
 
